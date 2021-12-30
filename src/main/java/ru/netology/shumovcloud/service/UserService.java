@@ -11,8 +11,13 @@ import ru.netology.shumovcloud.repository.UserRepository;
 
 @Service
 @NoArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService{
     @Autowired
     UserRepository userRepository;
 
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username);
+    }
 }

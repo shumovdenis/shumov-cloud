@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "usr")
 @Entity
-public class User implements Serializable {
+public class User implements Serializable, UserDetails {
     @Id
     @Column(name = "usr_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,4 +33,29 @@ public class User implements Serializable {
 
     @OneToMany (fetch=FetchType.EAGER)
     private Collection<FileInfo> files;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }
