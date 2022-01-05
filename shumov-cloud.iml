@@ -16,6 +16,7 @@
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
           <factory-entry name="entityManagerFactory" value="bc85edd7-1262-4fac-92fd-5c087fe7ba32" />
+          <factory-entry name="shumov-cloud" />
         </datasource-mapping>
         <naming-strategy-map />
       </configuration>

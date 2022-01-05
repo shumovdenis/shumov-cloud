@@ -37,7 +37,7 @@ public class FileController {
     }
 
     @PostMapping("/file")
-    public void uploadFile(@AuthenticationPrincipal User user,
+    public void uploadFile(
             @RequestParam("file")MultipartFile file) throws IOException, FileNotUniqException {
         fileService.uploadFile(file);
     }
