@@ -7,4 +7,5 @@ import ru.netology.shumovcloud.entity.FileInfo;
 @Repository
 public interface FileRepository extends JpaRepository<FileInfo, Long> {
     boolean existsByNameAndChecksum(String name, String checksum);
+    FileInfo findByName(String fileName);
 }

@@ -1,39 +1,52 @@
 package ru.netology.shumovcloud.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import ru.netology.shumovcloud.repository.UserRepository;
+import ru.netology.shumovcloud.security.jwt.JwtConfigurer;
+import ru.netology.shumovcloud.security.jwt.JwtTokenProvider;
 import ru.netology.shumovcloud.service.UserService;
-
-import javax.sql.DataSource;
 
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+
+    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Autowired
-    private UserService userService;
+    public WebSecurityConfig(UserService userService, JwtTokenProvider jwtTokenProvider) {
+        this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.formLogin()
+        http
+                .httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/list").permitAll()
+                .authorizeRequests()
+                .antMatchers("/file").hasAnyRole("ADMIN")
+                .anyRequest().authenticated()
                 .and()
-                .authorizeRequests().anyRequest().authenticated()
-                .and()
-                .formLogin().disable();
+                .apply(new JwtConfigurer(jwtTokenProvider));
     }
 
+    @Bean
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService);
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
     }
 }
