@@ -11,6 +11,7 @@ import ru.netology.shumovcloud.entity.FileInfo;
 import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
 import ru.netology.shumovcloud.repository.FileRepository;
+import ru.netology.shumovcloud.security.jwt.JwtUser;
 import ru.netology.shumovcloud.service.FileService;
 import ru.netology.shumovcloud.service.UserService;
 
@@ -42,7 +43,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void uploadFile(MultipartFile file, User user) throws FileNotUniqException, IOException {
+    public void uploadFile(MultipartFile file, JwtUser user) throws FileNotUniqException, IOException {
         if(file != null) {
             File uploadDir = new File(uploadPath);
             if (!uploadDir.exists()) {
