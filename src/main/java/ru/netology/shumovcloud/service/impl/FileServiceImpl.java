@@ -11,6 +11,7 @@ import ru.netology.shumovcloud.entity.FileInfo;
 import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
 import ru.netology.shumovcloud.repository.FileRepository;
+import ru.netology.shumovcloud.repository.UserRepository;
 import ru.netology.shumovcloud.security.jwt.JwtUser;
 import ru.netology.shumovcloud.service.FileService;
 import ru.netology.shumovcloud.service.UserService;
@@ -32,14 +33,16 @@ import java.util.List;
 public class FileServiceImpl implements FileService {
     private FileRepository fileRepository;
     private UserService userService;
+    private UserRepository userRepository;
 
     @Value("${upload.path}")
     private String uploadPath;
 
     @Autowired
-    public FileServiceImpl(FileRepository fileRepository, UserService userService) {
+    public FileServiceImpl(FileRepository fileRepository, UserService userService,UserRepository userRepository) {
         this.fileRepository = fileRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -58,12 +61,14 @@ public class FileServiceImpl implements FileService {
             throw new FileNotUniqException("Такой файл уже существует");
         }
 
+        User repoUser = userRepository.findByUsername(user.getUsername());
+
         FileInfo fileInfo = new FileInfo().builder()
                 .name(file.getOriginalFilename())
                 .size(file.getSize())
                 .uploadDate(LocalDate.now())
                 .checksum(checksumMD5)
-                .user(user)
+                .user(repoUser)
                 .build();
         fileRepository.save(fileInfo);
     }
