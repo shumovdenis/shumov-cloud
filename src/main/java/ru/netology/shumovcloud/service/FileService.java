@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
-    void uploadFile(MultipartFile file, JwtUser user) throws FileNotUniqException, IOException;
+    void uploadFile(MultipartFile file, JwtUser
+            user) throws FileNotUniqException, IOException;
 
     List<FileInfo> listAllFiles();
 
