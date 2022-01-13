@@ -1,9 +1,8 @@
-package ru.netology.shumovcloud.security.jwt2;
+package ru.netology.shumovcloud.security.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import ru.netology.shumovcloud.entity.User;
 
@@ -15,17 +14,17 @@ import java.util.Date;
 @Slf4j
 @Component
 public class JwtProvider {
-    @Value("${jwt.secret.access}")
+
     private String jwtAccessSecret;
-    @Value("${jwt.secret.refresh}")
+
     private String jwtRefreshSecret;
 
-    public JwtProvider(String jwtAccessSecret, String jwtRefreshSecret) {
+    public JwtProvider(@Value("${jwt.secret.access}") String jwtAccessSecret,@Value("${jwt.secret.refresh}") String jwtRefreshSecret) {
         this.jwtAccessSecret = jwtAccessSecret;
         this.jwtRefreshSecret = jwtRefreshSecret;
     }
 
-    public String generateAccessToken(@NonNull User user) {
+    public String generateAccessToken(User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant accessExpirationInstant = now.plusMinutes(5).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
@@ -39,7 +38,7 @@ public class JwtProvider {
         return accessToken;
     }
 
-    public String generateRefreshToken(@NonNull User user) {
+    public String generateRefreshToken(User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant = now.plusDays(30).atZone(ZoneId.systemDefault()).toInstant();
         final Date refreshExpiration = Date.from(refreshExpirationInstant);
@@ -51,15 +50,15 @@ public class JwtProvider {
         return refreshToken;
     }
 
-    public boolean validateAccessToken(@NonNull String token) {
+    public boolean validateAccessToken(String token) {
         return validateToken(token, jwtAccessSecret);
     }
 
-    public boolean validateRefreshToken(@NonNull String token) {
+    public boolean validateRefreshToken(String token) {
         return validateToken(token, jwtRefreshSecret);
     }
 
-    private boolean validateToken(@NonNull String token, @NonNull String secret) {
+    private boolean validateToken( String token, String secret) {
         try {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
@@ -77,15 +76,15 @@ public class JwtProvider {
         return false;
     }
 
-    public Claims getAccessClaims(@NonNull String token) {
+    public Claims getAccessClaims(String token) {
         return getClaims(token, jwtAccessSecret);
     }
 
-    public Claims getRefreshClaims(@NonNull String token) {
+    public Claims getRefreshClaims(String token) {
         return getClaims(token, jwtRefreshSecret);
     }
 
-    private Claims getClaims(@NonNull String token, @NonNull String secret) {
+    private Claims getClaims(String token,String secret) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 

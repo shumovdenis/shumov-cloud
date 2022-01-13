@@ -1,4 +1,4 @@
-package ru.netology.shumovcloud.security.jwt2;
+package ru.netology.shumovcloud.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.service.UserService;
+
 
 import javax.security.auth.message.AuthException;
 import java.util.HashMap;
@@ -20,9 +21,8 @@ public class AuthService {
     private final Map<String, String> refreshStorage = new HashMap<>();
     private final JwtProvider jwtProvider;
 
-    public JwtResponse login(@NonNull JwtRequest authRequest) {
-        final User user = userService.findByName(authRequest.getLogin())
-                .orElseThrow(() -> new AuthException("Пользователь не найден"));
+    public JwtResponse login(@NonNull JwtRequest authRequest) throws AuthException {
+        final User user = userService.findByName(authRequest.getLogin());   // добавить ошибку
         if (user.getPassword().equals(authRequest.getPassword())) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
@@ -39,8 +39,7 @@ public class AuthService {
             final String login = claims.getSubject();
             final String saveRefreshToken = refreshStorage.get(login);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.findByName(login)
-                        .orElseThrow(() -> new AuthException("Пользователь не найден"));
+                final User user = userService.findByName(login); // добавить ошибку
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 return new JwtResponse(accessToken, null);
             }
@@ -48,14 +47,13 @@ public class AuthService {
         return new JwtResponse(null, null);
     }
 
-    public JwtResponse refresh(@NonNull String refreshToken) {
+    public JwtResponse refresh(@NonNull String refreshToken) throws AuthException {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
             final String login = claims.getSubject();
             final String saveRefreshToken = refreshStorage.get(login);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.findByName(login)
-                        .orElseThrow(() -> new AuthException("Пользователь не найден"));
+                final User user = userService.findByName(login); // добавить ошибку
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
                 refreshStorage.put(user.getUsername(), newRefreshToken);

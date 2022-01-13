@@ -7,14 +7,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.shumovcloud.entity.FileInfo;
+import ru.netology.shumovcloud.entity.Role;
 import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
-import ru.netology.shumovcloud.security.JwtUserDetailsService;
-import ru.netology.shumovcloud.security.jwt.JwtUser;
 import ru.netology.shumovcloud.service.impl.FileServiceImpl;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
@@ -38,10 +38,8 @@ public class FileController {
 
     @PostMapping("/file")
     public void uploadFile(
-            @RequestParam("file")MultipartFile file,
-            @AuthenticationPrincipal JwtUser user
-    ) throws IOException, FileNotUniqException {
-        fileServiceImpl.uploadFile(file, user);
+            @RequestParam("file")MultipartFile file) throws IOException, FileNotUniqException {
+        fileServiceImpl.uploadFile(file);
     }
 
     @PutMapping("/file")

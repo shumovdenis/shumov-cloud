@@ -1,4 +1,4 @@
-package ru.netology.shumovcloud.security.jwt2;
+package ru.netology.shumovcloud.security.jwt;
 
 import lombok.Getter;
 import lombok.Setter;
