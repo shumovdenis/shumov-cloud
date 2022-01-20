@@ -1,4 +1,4 @@
-package ru.netology.shumovcloud.security.jwt;
+package ru.netology.shumovcloud.service;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -6,6 +6,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.netology.shumovcloud.entity.User;
+import ru.netology.shumovcloud.security.jwt.JwtAuthentication;
+import ru.netology.shumovcloud.security.jwt.JwtProvider;
+import ru.netology.shumovcloud.security.jwt.JwtRequest;
+import ru.netology.shumovcloud.security.jwt.JwtResponse;
 import ru.netology.shumovcloud.service.UserService;
 
 
@@ -22,11 +26,11 @@ public class AuthService {
     private final JwtProvider jwtProvider;
 
     public JwtResponse login(@NonNull JwtRequest authRequest) throws AuthException {
-        final User user = userService.findByName(authRequest.getLogin());   // добавить ошибку
+        final User user = userService.findByEmail(authRequest.getEmail());   // добавить ошибку
         if (user.getPassword().equals(authRequest.getPassword())) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
-            refreshStorage.put(user.getUsername(), refreshToken);
+            refreshStorage.put(user.getEmail(), refreshToken);
             return new JwtResponse(accessToken, refreshToken);
         } else {
             throw new AuthException("Неправильный пароль");
@@ -36,10 +40,10 @@ public class AuthService {
     public JwtResponse getAccessToken(@NonNull String refreshToken) {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
-            final String login = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(login);
+            final String email = claims.getSubject();
+            final String saveRefreshToken = refreshStorage.get(email);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.findByName(login); // добавить ошибку
+                final User user = userService.findByEmail(email); // добавить ошибку
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 return new JwtResponse(accessToken, null);
             }
@@ -50,13 +54,13 @@ public class AuthService {
     public JwtResponse refresh(@NonNull String refreshToken) throws AuthException {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
-            final String login = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(login);
+            final String email = claims.getSubject();
+            final String saveRefreshToken = refreshStorage.get(email);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.findByName(login); // добавить ошибку
+                final User user = userService.findByEmail(email); // добавить ошибку
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
-                refreshStorage.put(user.getUsername(), newRefreshToken);
+                refreshStorage.put(user.getEmail(), newRefreshToken);
                 return new JwtResponse(accessToken, newRefreshToken);
             }
         }

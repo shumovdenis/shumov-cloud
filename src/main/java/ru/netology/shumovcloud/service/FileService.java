@@ -11,14 +11,14 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
-    void uploadFile(MultipartFile file) throws FileNotUniqException, IOException;
+    void uploadFile(MultipartFile file, String filename, User user) throws FileNotUniqException, IOException;
 
-    List<FileInfo> listAllFiles();
+    List<FileInfo> getFiles();
 
     void update(String fileName, String newFileName);
 
-    void delete(String fileName);
+    void deleteFile(String fileName);
 
-    void download(String fileName, HttpServletResponse response);
+    void downloadFile(String fileName, HttpServletResponse response);
 
 }

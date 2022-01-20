@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.shumovcloud.entity.FileInfo;
-import ru.netology.shumovcloud.entity.Role;
 import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
 import ru.netology.shumovcloud.repository.FileRepository;
@@ -24,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -47,36 +45,34 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void uploadFile(MultipartFile file) throws FileNotUniqException, IOException {
-        User user = new User(1,"sda", "sda", Collections.singleton(Role.ADMIN));
+    public void uploadFile(MultipartFile file, String filename, User user) throws FileNotUniqException, IOException {
+
         if(file != null) {
             File uploadDir = new File(uploadPath);
             if (!uploadDir.exists()) {
                 uploadDir.mkdir();
             }
         }
-
         String checksumMD5 = DigestUtils.md5Hex(file.getBytes());
-        if(!fileRepository.existsByNameAndChecksum(file.getOriginalFilename(), checksumMD5)) {
-            file.transferTo(new File(uploadPath + "/" + file.getOriginalFilename()));
+        if(!fileRepository.existsByNameAndChecksum(filename, checksumMD5)) {
+            file.transferTo(new File(uploadPath + "/" + filename));
         } else {
             throw new FileNotUniqException("Такой файл уже существует");
         }
 
-        User repoUser = userRepository.findByUsername(user.getUsername());
-
         FileInfo fileInfo = new FileInfo().builder()
-                .name(file.getOriginalFilename())
+                .name(filename)
                 .size(file.getSize())
                 .uploadDate(LocalDate.now())
                 .checksum(checksumMD5)
-                .user(repoUser)
+                .user(user)
                 .build();
         fileRepository.save(fileInfo);
     }
 
     @Override
-    public List<FileInfo> listAllFiles() {
+    public List<FileInfo> getFiles() {
+        log.info("IN FileService - getFiles was successfully executed");
         return new ArrayList<>(fileRepository.findAll());
     }
 
@@ -89,10 +85,11 @@ public class FileServiceImpl implements FileService {
         file.renameTo(new File(uploadPath + "/" + newFileName));
         fileInfo.setName(newFileName);
         fileRepository.save(fileInfo);
+        log.info("IN FileService - file: {} successfully update", fileName);
     }
 
     @Override
-    public void delete(String fileName) {
+    public void deleteFile(String fileName) {
         Long fileID = fileRepository.findByName(fileName).getId();
         FileInfo fileInfo = fileRepository.findById(fileID)
                 .orElseThrow(() -> new EntityNotFoundException("Файл не найден"));
@@ -103,7 +100,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void download(String fileName, HttpServletResponse response) {
+    public void downloadFile(String fileName, HttpServletResponse response) {
         try {
             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
             FileInputStream fis = new FileInputStream(uploadPath + "/" + fileName);
@@ -117,6 +114,7 @@ public class FileServiceImpl implements FileService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        log.info("IN FileService - file: {} successfully download", fileName);
     }
 
 }
