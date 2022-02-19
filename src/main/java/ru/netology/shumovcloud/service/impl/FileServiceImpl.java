@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.shumovcloud.entity.FileInfo;
 import ru.netology.shumovcloud.entity.User;
+import ru.netology.shumovcloud.exceptions.ErrorInputData;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
 import ru.netology.shumovcloud.repository.FileRepository;
 import ru.netology.shumovcloud.repository.UserRepository;
@@ -112,9 +113,8 @@ public class FileServiceImpl implements FileService {
             bos.close();
             response.flushBuffer();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ErrorInputData("Error input data");
         }
         log.info("IN FileService - file: {} successfully download", fileName);
     }
-
 }
