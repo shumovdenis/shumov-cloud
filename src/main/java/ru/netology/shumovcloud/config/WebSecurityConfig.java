@@ -11,9 +11,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import ru.netology.shumovcloud.config.jwt.JwtConfigurer;
 import ru.netology.shumovcloud.config.jwt.JwtTokenProvider;
 import ru.netology.shumovcloud.repository.UserRepository;
+import ru.netology.shumovcloud.service.UserService;
 
 import javax.sql.DataSource;
 
@@ -25,19 +27,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final DataSource dataSource;
+    private final UserService userService;
 
     @Autowired
-    public WebSecurityConfig(JwtTokenProvider jwtTokenProvider, UserRepository userRepository,DataSource dataSource) {
+    public WebSecurityConfig(JwtTokenProvider jwtTokenProvider, UserRepository userRepository,UserService userService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
-        this.dataSource = dataSource;
+        this.userService = userService;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //auth.jdbcAuthentication().dataSource((DataSource) userRepository);
-        auth.jdbcAuthentication().dataSource(dataSource);
+        auth.userDetailsService(userService).passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 
     @Bean

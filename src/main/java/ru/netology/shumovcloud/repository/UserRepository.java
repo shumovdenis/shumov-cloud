@@ -6,5 +6,5 @@ import ru.netology.shumovcloud.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    User findByEmail(String email);
+    User findByLogin(String login);
 }

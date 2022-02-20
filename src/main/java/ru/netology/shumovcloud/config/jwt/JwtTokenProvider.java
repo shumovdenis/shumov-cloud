@@ -18,7 +18,7 @@ public class JwtTokenProvider {
     @Value("${jwt.token.secret}")
     private String salt;
     @Value("${jwt.token.expired}")
-    private String expiredMs;
+    private long expiredMs;
 
     @PostConstruct
     protected void init(){
