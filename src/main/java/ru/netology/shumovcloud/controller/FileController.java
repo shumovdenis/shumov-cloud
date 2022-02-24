@@ -2,6 +2,8 @@ package ru.netology.shumovcloud.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.shumovcloud.entity.FileInfo;
@@ -34,9 +36,13 @@ public class FileController {
         this.userService = userService;
     }
 
-    @GetMapping("/file")
-    public List<FileInfo> getFiles() {
-        return fileService.getFiles();
+    @GetMapping("/list")
+    public ResponseEntity<List<FileInfo>> getFiles(
+            @RequestHeader("auth-token") String authToken,
+            @RequestParam("limit") int limit) {
+        String token = authToken.substring(7);
+        List<FileInfo> list = fileService.getFiles(limit, authToken);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @PostMapping("/file")

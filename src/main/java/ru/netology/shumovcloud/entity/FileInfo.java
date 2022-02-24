@@ -24,7 +24,7 @@ public class FileInfo implements Serializable {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "file_size",nullable = false)
     private long size;
 
     @Column(nullable = false)

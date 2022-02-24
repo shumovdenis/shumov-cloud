@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ru.netology.shumovcloud.config.jwt.JwtTokenProvider;
 import ru.netology.shumovcloud.entity.FileInfo;
 import ru.netology.shumovcloud.entity.User;
+import ru.netology.shumovcloud.exceptions.ErrorGettingFileList;
 import ru.netology.shumovcloud.exceptions.ErrorInputData;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
 import ru.netology.shumovcloud.repository.FileRepository;
@@ -34,15 +36,17 @@ public class FileServiceImpl implements FileService {
     private FileRepository fileRepository;
     private UserService userService;
     private UserRepository userRepository;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Value("${upload.path}")
     private String uploadPath;
 
     @Autowired
-    public FileServiceImpl(FileRepository fileRepository, UserService userService,UserRepository userRepository) {
+    public FileServiceImpl(FileRepository fileRepository, UserService userService,UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         this.fileRepository = fileRepository;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -72,9 +76,26 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<FileInfo> getFiles() {
-        log.info("IN FileService - getFiles was successfully executed");
-        return new ArrayList<>(fileRepository.findAll());
+    public List<FileInfo> getFiles(int limit, String token) {
+        String login = jwtTokenProvider.getUserName(token);
+        Long id = userRepository.findByLogin(login).getId();
+
+        List<String> result = fileRepository.custom(id);
+        System.out.println(result);
+
+        System.out.println(new ArrayList<>(fileRepository.findAll()));
+
+        List<FileInfo> test = new ArrayList<>();
+        return test;
+
+//        try {
+//            List<FileInfo> result = fileRepository.custom(id);
+//            log.info("IN FileService - getFiles was successfully executed");
+//            System.out.println(result.subList(0, Math.min(limit, result.size())));
+//            return result.subList(0, Math.min(limit, result.size()));
+//        } catch (Exception e) {
+//            throw new ErrorGettingFileList("Error getting file list");
+//        }
     }
 
     @Override
