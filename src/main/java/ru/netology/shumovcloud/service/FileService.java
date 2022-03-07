@@ -13,7 +13,7 @@ import java.util.List;
 public interface FileService {
     void uploadFile(MultipartFile file, String filename, User user) throws FileNotUniqException, IOException;
 
-    List<FileInfo> getFiles(int limit, String token);
+    List<String> getFiles(int limit, String token);
 
     void update(String fileName, String newFileName);
 

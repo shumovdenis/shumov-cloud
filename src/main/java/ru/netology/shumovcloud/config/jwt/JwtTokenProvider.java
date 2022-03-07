@@ -8,10 +8,7 @@ import ru.netology.shumovcloud.entity.Role;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class JwtTokenProvider {
@@ -25,8 +22,9 @@ public class JwtTokenProvider {
         salt = Base64.getEncoder().encodeToString(salt.getBytes());
     }
 
-    public String createToken(String username){
+    public String createToken(String username, List<Role> roleList){
         Claims claims = Jwts.claims().setSubject(username);
+        claims.put("roles", getRoleList(roleList));
         Date now = new Date();
         Date validity = new Date(now.getTime() + expiredMs);
 
@@ -64,8 +62,14 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e){
             ///
         }
-
         return false;
     }
+
+    public List<String> getRoleList(List<Role> RoleList){
+        List<String> result = new ArrayList<>();
+        RoleList.forEach(auth -> result.add(auth.getAuthority()));
+        return result;
+    }
+
 }
 

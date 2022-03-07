@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -70,32 +71,23 @@ public class FileServiceImpl implements FileService {
                 .size(file.getSize())
                 .uploadDate(LocalDate.now())
                 .checksum(checksumMD5)
-                .user(user)
                 .build();
         fileRepository.save(fileInfo);
     }
 
     @Override
-    public List<FileInfo> getFiles(int limit, String token) {
+    public List<String> getFiles(int limit, String token) {
         String login = jwtTokenProvider.getUserName(token);
+        System.out.println("tokennnnnnnnnn######### " + token);
         Long id = userRepository.findByLogin(login).getId();
-
-        List<String> result = fileRepository.custom(id);
-        System.out.println(result);
-
-        System.out.println(new ArrayList<>(fileRepository.findAll()));
-
-        List<FileInfo> test = new ArrayList<>();
-        return test;
-
-//        try {
-//            List<FileInfo> result = fileRepository.custom(id);
-//            log.info("IN FileService - getFiles was successfully executed");
-//            System.out.println(result.subList(0, Math.min(limit, result.size())));
-//            return result.subList(0, Math.min(limit, result.size()));
-//        } catch (Exception e) {
-//            throw new ErrorGettingFileList("Error getting file list");
-//        }
+        try {
+            List<String> result = fileRepository.custom(id);
+            log.info("IN FileService - getFiles was successfully executed");
+            System.out.println(result.subList(0, Math.min(limit, result.size())));
+            return result.subList(0, Math.min(limit, result.size()));
+        } catch (Exception e) {
+            throw new ErrorGettingFileList("Error getting file list");
+        }
     }
 
     @Override

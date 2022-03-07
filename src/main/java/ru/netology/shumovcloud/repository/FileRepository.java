@@ -14,18 +14,8 @@ import java.util.List;
 public interface FileRepository extends JpaRepository<FileInfo, Long> {
     boolean existsByNameAndChecksum(String name, String checksum);
     FileInfo findByName(String fileName);
-    FileInfo findByUserId
 
-    //@Query(value = "SELECT 'name', 'upload_date', 'file_size' FROM file_info WHERE usr_id = 1", nativeQuery = true)
-    //@Query(value = "SELECT * FROM file_info WHERE 'usr_id' = 1", nativeQuery = true)
-    //@Query("SELECT f.name, f.uploadDate, f.size FROM FileInfo f WHERE User.id=1")
-
-    //@Query(value = "SELECT f.name, f.upload_date, f.file_size FROM file_info f WHERE f.usr_id = 1 ", nativeQuery = true)
-
-    //@Query(value = "SELECT f.name FROM file_info f WHERE usr_id = 1", nativeQuery = true)
-    @Query(value = "select name from file_info where 'usr_id' = 1 ", nativeQuery = true)
-
-    //@Query(value = "Select f.name, f.upload_date, f.file_size from file_info f join usr u on u.usr_id = f.usr_id", nativeQuery = true)
-    List<String> custom (Long usr_id);
+    @Query(value = "Select f.name, f.upload_date, f.file_size from usr_file_infos ufi inner join file_info f on ufi.file_infos_id where ufi.user_usr_id = ?", nativeQuery = true)
+    List<String> custom (Long user_usr_id);
 
 }

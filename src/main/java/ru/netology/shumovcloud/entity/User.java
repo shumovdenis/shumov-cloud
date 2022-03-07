@@ -36,6 +36,9 @@ public class User implements Serializable, UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    @OneToMany
+    private Set<FileInfo> fileInfos;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();

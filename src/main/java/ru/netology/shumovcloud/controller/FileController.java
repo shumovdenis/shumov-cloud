@@ -37,11 +37,11 @@ public class FileController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<FileInfo>> getFiles(
+    public ResponseEntity<List<String>> getFiles(
             @RequestHeader("auth-token") String authToken,
             @RequestParam("limit") int limit) {
         String token = authToken.substring(7);
-        List<FileInfo> list = fileService.getFiles(limit, authToken);
+        List<String> list = fileService.getFiles(limit, authToken);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

@@ -33,7 +33,7 @@ public class FileInfo implements Serializable {
     @Column(nullable = false)
     private String checksum;
 
-    @ManyToOne (optional=false, fetch = FetchType.EAGER)
-    @JoinColumn (name="usr_id")
-    private User user;
+//    @ManyToOne (optional=false, fetch = FetchType.EAGER)
+//    @JoinColumn (name="usr_id")
+//    private User user;
 }

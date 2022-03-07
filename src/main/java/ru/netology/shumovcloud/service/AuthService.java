@@ -26,8 +26,8 @@ public class AuthService {
     public String getToken(Login login) {
         try {
             Authentication authResult = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login.getLogin(), login.getPassword()));
-            String token = jwtTokenProvider.createToken(login.getLogin());
-           log.info("Token created successfully for "+login.getLogin());
+            String token = jwtTokenProvider.createToken(login.getLogin(), );
+            log.info("Token created successfully for " + login.getLogin());
             return token;
         } catch (AuthenticationException e) {
             log.info("Bad credentials for "+login.getLogin());
