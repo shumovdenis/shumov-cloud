@@ -43,6 +43,7 @@ public class FileController {
         String token = authToken.substring(7);
         List<FileInfo> list = fileService.getFiles(limit, authToken);
         return new ResponseEntity<>(list, HttpStatus.OK);
+        //обработать ошибки
     }
 
     @PostMapping("/file")

@@ -24,7 +24,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLConnection;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -77,7 +76,6 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<FileInfo> getFiles(int limit, String token) {
         String login = jwtTokenProvider.getUserName(token);
-        System.out.println("tokennnnnnnnnn######### " + token);
         Long id = userRepository.findByLogin(login).getId();
         try {
             List<FileInfo> result = fileRepository.custom(id);
@@ -86,7 +84,7 @@ public class FileServiceImpl implements FileService {
             return result.subList(0, Math.min(limit, result.size()));
         } catch (Exception e) {
             throw new ErrorGettingFileList("Error getting file list");
-        } 
+        } //обработать ошибки
     }
 
     @Override

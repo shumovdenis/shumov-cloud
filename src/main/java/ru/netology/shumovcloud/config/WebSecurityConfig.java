@@ -18,8 +18,6 @@ import ru.netology.shumovcloud.config.jwt.JwtTokenProvider;
 import ru.netology.shumovcloud.repository.UserRepository;
 import ru.netology.shumovcloud.service.UserService;
 
-import javax.sql.DataSource;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
