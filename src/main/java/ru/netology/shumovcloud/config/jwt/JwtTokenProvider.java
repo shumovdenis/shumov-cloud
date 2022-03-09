@@ -22,9 +22,9 @@ public class JwtTokenProvider {
         salt = Base64.getEncoder().encodeToString(salt.getBytes());
     }
 
-    public String createToken(String username, List<Role> roleList){
+    public String createToken(String username){
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", getRoleList(roleList));
+        claims.put("roles", "ADMIN");
         Date now = new Date();
         Date validity = new Date(now.getTime() + expiredMs);
 

@@ -11,8 +11,6 @@ public class Token implements Serializable {
     @JsonProperty("auth-token")
     private final String authToken;
 
-
-
     public Token(String authToken) {
         this.authToken = authToken;
     }

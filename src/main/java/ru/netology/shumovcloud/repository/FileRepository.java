@@ -16,6 +16,6 @@ public interface FileRepository extends JpaRepository<FileInfo, Long> {
     FileInfo findByName(String fileName);
 
     @Query(value = "Select f.name, f.upload_date, f.file_size from usr_file_infos ufi inner join file_info f on ufi.file_infos_id where ufi.user_usr_id = ?", nativeQuery = true)
-    List<String> custom (Long user_usr_id);
+    List<FileInfo> custom (Long user_usr_id);
 
 }

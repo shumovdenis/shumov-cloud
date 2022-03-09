@@ -11,12 +11,14 @@ import ru.netology.shumovcloud.dto.Login;
 import ru.netology.shumovcloud.exceptions.ErrorBadCredentials;
 
 
+
 @Service
 @Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    //private final RoleRepository roleRepository;
 
     public AuthService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
@@ -26,7 +28,7 @@ public class AuthService {
     public String getToken(Login login) {
         try {
             Authentication authResult = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login.getLogin(), login.getPassword()));
-            String token = jwtTokenProvider.createToken(login.getLogin(), );
+            String token = jwtTokenProvider.createToken(login.getLogin());
             log.info("Token created successfully for " + login.getLogin());
             return token;
         } catch (AuthenticationException e) {
