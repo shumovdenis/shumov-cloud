@@ -8,6 +8,7 @@ import ru.netology.shumovcloud.entity.Role;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
@@ -19,7 +20,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init(){
-        salt = Base64.getEncoder().encodeToString(salt.getBytes());
+        salt = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createToken(String username){

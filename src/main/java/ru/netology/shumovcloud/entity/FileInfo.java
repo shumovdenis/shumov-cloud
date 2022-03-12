@@ -17,8 +17,8 @@ import java.time.LocalDate;
 public class FileInfo implements Serializable {
 
     @Id
-    @Column(nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "file_id",nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)

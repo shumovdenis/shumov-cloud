@@ -20,7 +20,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/login")
+    @PostMapping("/login1")
     public ResponseEntity<Token> login(@RequestBody Login login) throws AuthException {
        String res = authService.getToken(login);
        System.out.println(res);
