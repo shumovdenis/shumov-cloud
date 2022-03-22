@@ -1,9 +1,8 @@
 package ru.netology.shumovcloud.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,6 +18,12 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "usr")
+
+@ToString(exclude = "fileInfos")
+@EqualsAndHashCode(exclude = "fileInfos")
+
+@Getter
+@Setter
 @Entity
 public class User implements Serializable, UserDetails {
     @Id
@@ -36,8 +42,9 @@ public class User implements Serializable, UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    @OneToMany
-    private Set<FileInfo> fileInfos;
+
+    @OneToMany(mappedBy = "user")
+    private List<FileInfo> Files;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
