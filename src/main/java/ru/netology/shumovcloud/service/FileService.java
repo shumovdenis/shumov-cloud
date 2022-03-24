@@ -18,6 +18,6 @@ public interface FileService {
 
     String deleteFile(String fileName, String token);
 
-    void downloadFile(String fileName, HttpServletResponse response);
+    void downloadFile(String fileName, HttpServletResponse response, String token);
 
 }

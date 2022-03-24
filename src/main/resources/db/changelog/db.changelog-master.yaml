@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - include:
+      file: migrations/create_usr_table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/create_file_info_table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/create_user_role_table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/fill_usr_table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/fill_user_role_table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/fill_file_info_table.sql
+      relativeToChangelogFile: true

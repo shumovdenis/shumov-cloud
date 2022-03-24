@@ -48,7 +48,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String upload(MultipartFile file, String filename, String token)
-            throws FileNotUniqException, IOException {
+            throws IOException {
 
         String checksumMD5 = DigestUtils.md5Hex(file.getBytes());
         String userName = getUserName(token);
@@ -56,10 +56,10 @@ public class FileServiceImpl implements FileService {
             try {
                 byte[] bytes = file.getBytes();
                 BufferedOutputStream stream =
-                        new BufferedOutputStream(new FileOutputStream(new File(getFullPath(filename,userName))));
+                        new BufferedOutputStream(new FileOutputStream(new File(getFullPath(filename, userName))));
                 stream.write(bytes);
                 stream.close();
-                jpaFileRepository.addNemFile(getUserId(userName), filename,checksumMD5, file.getSize());
+                jpaFileRepository.addNemFile(getUserId(userName), filename, checksumMD5, file.getSize());
 
             } catch (Exception e) {
                 log.info("File upload error,", filename, userName);
@@ -72,10 +72,19 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<FileInfo> getFiles(int limit, String token) {
+        if (limit <= 0) {
+            log.info("Invalid files limit: " + limit);
+            throw new ErrorInputData("Service said: Error input data!");
+        }
 
-        String login = jwtTokenProvider.getUserName(token);
+        String login;
+        try {
+            login = jwtTokenProvider.getUserName(token);
+        } catch (Exception e) {
+            throw new ErrorUnauthorized("Service: Unauthorized error");
+        }
+
         Long id = userRepository.findByLogin(login).getId();
-
         try {
             List<FileInfo> result = jpaFileRepository.findByUserId(id);
             System.out.println(result);
@@ -106,6 +115,7 @@ public class FileServiceImpl implements FileService {
         Long fileID = jpaFileRepository.findByFilename(fileName).getId();
         FileInfo fileInfo = jpaFileRepository.findById(fileID)
                 .orElseThrow(() -> new EntityNotFoundException("File not found"));
+
         try {
             jpaFileRepository.delete(fileInfo);
             File file = new File(getFullPath(fileName, username)).getAbsoluteFile();
@@ -120,14 +130,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void downloadFile(String fileName, HttpServletResponse response) {
+    public void downloadFile(String fileName, HttpServletResponse response, String token) {
+        String username = getUserName(token);
         try {
             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
-            FileInputStream fis = new FileInputStream(getFullPath(fileName, "123") );
+            FileInputStream fis = new FileInputStream(getFullPath(fileName, username));
             int len;
             byte[] buf = new byte[1024];
             while ((len = fis.read(buf)) > 0) {
-                bos.write(buf,0,len);
+                bos.write(buf, 0, len);
             }
             bos.close();
             response.flushBuffer();

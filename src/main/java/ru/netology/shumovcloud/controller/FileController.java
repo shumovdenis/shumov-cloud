@@ -11,7 +11,7 @@ import ru.netology.shumovcloud.dto.Token;
 import ru.netology.shumovcloud.entity.FileInfo;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
 import ru.netology.shumovcloud.service.AuthService;
-import ru.netology.shumovcloud.service.UserService;
+import ru.netology.shumovcloud.service.FileService;
 import ru.netology.shumovcloud.service.impl.FileServiceImpl;
 
 import javax.security.auth.message.AuthException;
@@ -23,28 +23,27 @@ import java.util.List;
 @CrossOrigin(origins = "http//localhost:8080")
 public class FileController {
 
-    private final UserService userService;
 
     private final AuthService authService;
 
-    private final FileServiceImpl fileService;
+    private final FileService fileService;
 
     @Autowired
-    public FileController(FileServiceImpl fileService, AuthService authService, UserService userService) {
+    public FileController(FileService fileService, AuthService authService) {
         this.fileService = fileService;
         this.authService = authService;
-        this.userService = userService;
+
     }
 
     @PostMapping("/login")
     public ResponseEntity<Token> login(@RequestBody Login login) throws AuthException {
         String res = authService.getToken(login);
         System.out.println(res);
-        return new ResponseEntity<>( new Token(res), HttpStatus.OK);
+        return new ResponseEntity<>(new Token(res), HttpStatus.OK);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("auth-token") String authToken){
+    public ResponseEntity<String> logout(@RequestHeader("auth-token") String authToken) {
         authService.removeToken(authToken);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -59,23 +58,23 @@ public class FileController {
 
     @PostMapping("/file")
     public ResponseEntity<String> upload(@RequestHeader("auth-token") String authToken,
-                           @RequestParam("filename") String filename,
-                           MultipartFile file) throws IOException, FileNotUniqException {
+                                         @RequestParam("filename") String filename,
+                                         MultipartFile file) throws IOException, FileNotUniqException {
         String result = fileService.upload(file, filename, authToken.substring(7));
         if (result.equals("OK")) {
             return new ResponseEntity<>("Upload success", HttpStatus.OK);
-            } else {
+        } else {
             return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/file")
     public ResponseEntity<String> update(@RequestHeader("auth-token") String authToken,
-                       @RequestParam("filename") String filename,
-                       @RequestBody NewFileName newFileName) {
+                                         @RequestParam("filename") String filename,
+                                         @RequestBody NewFileName newFileName) {
         String result = fileService.update(filename, newFileName.getFilename(), authToken.substring(7));
         if (result.equals("OK")) {
-            return new ResponseEntity<>("Rename success", HttpStatus.OK);
+            return new ResponseEntity<>("Update success", HttpStatus.OK);
         } else {
             return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
         }
@@ -94,9 +93,10 @@ public class FileController {
 
     @GetMapping("/file")
     @ResponseBody
-    public ResponseEntity<HttpServletResponse> downloadFile(@RequestParam("filename") String fileName,
+    public ResponseEntity<HttpServletResponse> downloadFile(@RequestHeader("auth-token") String authToken,
+                                                            @RequestParam("filename") String fileName,
                                                             HttpServletResponse response) {
-        fileService.downloadFile(fileName, response);
+        fileService.downloadFile(fileName, response, authToken.substring(7));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
