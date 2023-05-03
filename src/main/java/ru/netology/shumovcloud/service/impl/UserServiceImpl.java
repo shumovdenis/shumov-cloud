@@ -1,9 +1,9 @@
 package ru.netology.shumovcloud.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.repository.UserRepository;
@@ -17,15 +17,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public UserServiceImpl(UserRepository userRepository){
         this.userRepository = userRepository;
     }
 
     @Override
-    public User findByName(String userName) {
-        User result = userRepository.findByUsername(userName);
-        log.info("IN findByName - user: {} found by username : {}", result, userName);
+    public User findByLogin(String login) {
+        User result = userRepository.findByLogin(login);
+        log.info("IN findByName - user: {} found by username : {}", result, login);
         return result;
     }
 
@@ -41,5 +40,16 @@ public class UserServiceImpl implements UserService {
         List<User> result = userRepository.findAll();
         log.info("IN getALL - {} users found", result.size());
         return result;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        User user = userRepository.findByLogin(login);
+
+        if(user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        return (UserDetails) user;
     }
 }

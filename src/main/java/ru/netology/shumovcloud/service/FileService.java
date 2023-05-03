@@ -2,24 +2,22 @@ package ru.netology.shumovcloud.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.shumovcloud.entity.FileInfo;
-import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
-import ru.netology.shumovcloud.security.jwt.JwtUser;
+
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
-    void uploadFile(MultipartFile file, JwtUser
-            user) throws FileNotUniqException, IOException;
+    String upload(MultipartFile file, String filename, String authToken) throws FileNotUniqException, IOException;
 
-    List<FileInfo> listAllFiles();
+    List<FileInfo> getFiles(int limit, String token);
 
-    void update(String fileName, String newFileName);
+    String update(String fileName, String newFileName, String token);
 
-    void delete(String fileName);
+    String deleteFile(String fileName, String token);
 
-    void download(String fileName, HttpServletResponse response);
+    void downloadFile(String fileName, HttpServletResponse response, String token);
 
 }

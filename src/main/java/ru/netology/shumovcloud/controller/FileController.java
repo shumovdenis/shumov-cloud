@@ -1,63 +1,102 @@
 package ru.netology.shumovcloud.controller;
 
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.netology.shumovcloud.dto.Login;
+import ru.netology.shumovcloud.dto.NewFileName;
+import ru.netology.shumovcloud.dto.Token;
 import ru.netology.shumovcloud.entity.FileInfo;
-import ru.netology.shumovcloud.entity.User;
 import ru.netology.shumovcloud.exceptions.FileNotUniqException;
-import ru.netology.shumovcloud.security.JwtUserDetailsService;
-import ru.netology.shumovcloud.security.jwt.JwtUser;
+import ru.netology.shumovcloud.service.AuthService;
+import ru.netology.shumovcloud.service.FileService;
 import ru.netology.shumovcloud.service.impl.FileServiceImpl;
 
+import javax.security.auth.message.AuthException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@NoArgsConstructor
 @RestController
+@CrossOrigin(origins = "http//localhost:8080")
 public class FileController {
 
-    @Value("${upload.path}")
-    private String uploadPath;
 
-    private FileServiceImpl fileServiceImpl;
+    private final AuthService authService;
+
+    private final FileService fileService;
 
     @Autowired
-    public FileController(FileServiceImpl fileServiceImpl) {
-        this.fileServiceImpl = fileServiceImpl;
+    public FileController(FileService fileService, AuthService authService) {
+        this.fileService = fileService;
+        this.authService = authService;
+
     }
 
-    @GetMapping("/file")
-    public List<FileInfo> listAllFiles() {
-        return fileServiceImpl.listAllFiles();
+    @PostMapping("/login")
+    public ResponseEntity<Token> login(@RequestBody Login login) throws AuthException {
+        String res = authService.getToken(login);
+        System.out.println(res);
+        return new ResponseEntity<>(new Token(res), HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("auth-token") String authToken) {
+        authService.removeToken(authToken);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<FileInfo>> list(@RequestHeader("auth-token") String authToken,
+                                               @RequestParam("limit") int limit) {
+        String token = authToken.substring(7);
+        List<FileInfo> list = fileService.getFiles(limit, token);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @PostMapping("/file")
-    public void uploadFile(
-            @RequestParam("file")MultipartFile file,
-            @AuthenticationPrincipal JwtUser user
-    ) throws IOException, FileNotUniqException {
-        fileServiceImpl.uploadFile(file, user);
+    public ResponseEntity<String> upload(@RequestHeader("auth-token") String authToken,
+                                         @RequestParam("filename") String filename,
+                                         MultipartFile file) throws IOException, FileNotUniqException {
+        String result = fileService.upload(file, filename, authToken.substring(7));
+        if (result.equals("OK")) {
+            return new ResponseEntity<>("Upload success", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/file")
-    public void update(@RequestParam("fileName") String filename, @RequestParam String newFileName) {
-        fileServiceImpl.update(filename, newFileName);
+    public ResponseEntity<String> update(@RequestHeader("auth-token") String authToken,
+                                         @RequestParam("filename") String filename,
+                                         @RequestBody NewFileName newFileName) {
+        String result = fileService.update(filename, newFileName.getFilename(), authToken.substring(7));
+        if (result.equals("OK")) {
+            return new ResponseEntity<>("Update success", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/file")
-    public void delete(@RequestParam("fileName") String fileName) {
-        fileServiceImpl.delete(fileName);
+    public ResponseEntity<String> deleteFile(@RequestHeader("auth-token") String authToken,
+                                             @RequestParam("filename") String fileName) {
+        String result = fileService.deleteFile(fileName, authToken.substring(7));
+        if (result.equals("OK")) {
+            return new ResponseEntity<>("Delete success", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping("/dwnl")
+    @GetMapping("/file")
     @ResponseBody
-    public void download(@RequestParam("fileName") String fileName, HttpServletResponse response) {
-        fileServiceImpl.download(fileName, response);
+    public ResponseEntity<HttpServletResponse> downloadFile(@RequestHeader("auth-token") String authToken,
+                                                            @RequestParam("filename") String fileName,
+                                                            HttpServletResponse response) {
+        fileService.downloadFile(fileName, response, authToken.substring(7));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

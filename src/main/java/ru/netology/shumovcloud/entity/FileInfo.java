@@ -1,39 +1,46 @@
 package ru.netology.shumovcloud.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 public class FileInfo implements Serializable {
 
     @Id
-    @Column(nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "file_id",nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
-    private String name;
+    private String filename;
+
+    @Column(name = "file_size",nullable = false)
+    private int size;
 
     @Column(nullable = false)
-    private long size;
-
-    @Column(nullable = false)
-    private LocalDate uploadDate;
+    private Date uploadDate;
 
     @Column(nullable = false)
     private String checksum;
 
-    @ManyToOne (optional=false, fetch = FetchType.EAGER)
-    @JoinColumn (name="usr_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User user;
+
+    @Override
+    public String toString() {
+        return filename + " " + uploadDate + " " + size;
+    }
 }
